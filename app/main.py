@@ -1,5 +1,13 @@
+import pymongo, os
 from flask import Flask, request
+
 app = Flask(__name__)
+
+# Set connection to MongoDB, Database & Collection
+conn_str = os.getenv("DB_ADDRESS")
+cluster = pymongo.MongoClient(conn_str, serverSelectionTimeoutMS=5000)
+db = cluster["users"]
+collection = db["userdata"]
 
 @app.route('/entry/unoid', methods=['GET', 'POST'])
 def unoid():
@@ -9,18 +17,21 @@ def unoid():
             'method': request.method
         }
     if request.method == "POST":
+        collection.insert_one(request.json)
         return {
-            'message': 'This endpoint should create an entity',
+            'message': 'UnoID created successfully',
             'method': request.method,
 		'body': request.json
         }
 
-@app.route('/entry/unoid/<int:uno_id>', methods=['GET', 'PUT', 'DELETE'])
-def entity(uno_id):
+@app.route('/fetch/unoid/', methods=['GET', 'PUT', 'DELETE'])
+def entity():
+    uno_id = request.args.get('uno_id')
     if request.method == "GET":
+        results = collection.find({"_id": uno_id})
         return {
             'id': uno_id,
-            'message': 'This endpoint should return the entity {} details'.format(uno_id),
+            'message': 'UnoID {} details'.format(results),
             'method': request.method
         }
     if request.method == "PUT":
