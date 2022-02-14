@@ -33,7 +33,8 @@ def update_record():
         return jsonify({'error': 'data not found'})
     else:
         user.update(name=record['name'],
-                    email=record['email'])
+                    email=record['email'],
+                    add_to_set__comments=record['comments'])
     return jsonify(user.to_json())
 
 @app.route('/', methods=['DELETE'])

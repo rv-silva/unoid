@@ -13,10 +13,12 @@ db = MongoEngine()
 db.init_app(app)
 
 class User(db.Document):
-    login = db.StringField(unique=True,required=True)
-    name = db.StringField(max_length=80,required=True)
-    email = db.EmailField(max_length=80,required=True)
+    login    = db.StringField(unique=True,required=True)
+    name     = db.StringField(max_length=80,required=True)
+    email    = db.EmailField(max_length=80,required=True)
+    comments = db.ListField(db.DictField())
     def to_json(self):
         return {"login": self.login,
                 "name": self.name,
-                "email": self.email}
+                "email": self.email,
+                "comments": self.comments}
