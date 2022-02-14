@@ -1,3 +1,4 @@
+from enum import unique
 import os
 from flask import Flask
 from flask_mongoengine import MongoEngine
@@ -12,8 +13,10 @@ db = MongoEngine()
 db.init_app(app)
 
 class User(db.Document):
-    name = db.StringField()
-    email = db.StringField()
+    login = db.StringField(unique=True,required=True)
+    name = db.StringField(max_length=80,required=True)
+    email = db.EmailField(max_length=80,required=True)
     def to_json(self):
-        return {"name": self.name,
+        return {"login": self.login,
+                "name": self.name,
                 "email": self.email}

@@ -9,8 +9,8 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def query_records():
-    name = request.args.get('name')
-    user = User.objects(name=name).first()
+    login = request.args.get('login')
+    user = User.objects(login=login).first()
     if not user:
         return jsonify({'error': 'data not found'})
     else:
@@ -19,7 +19,8 @@ def query_records():
 @app.route('/', methods=['PUT'])
 def create_record():
     record = json.loads(request.data)
-    user = User(name=record['name'],
+    user = User(login=record['login'],
+                name=record['name'],
                 email=record['email'])
     user.save()
     return jsonify(user.to_json())
@@ -27,17 +28,18 @@ def create_record():
 @app.route('/', methods=['POST'])
 def update_record():
     record = json.loads(request.data)
-    user = User.objects(name=record['name']).first()
+    user = User.objects(login=record['login']).first()
     if not user:
         return jsonify({'error': 'data not found'})
     else:
-        user.update(email=record['email'])
+        user.update(name=record['name'],
+                    email=record['email'])
     return jsonify(user.to_json())
 
 @app.route('/', methods=['DELETE'])
 def delete_record():
     record = json.loads(request.data)
-    user = User.objects(name=record['name']).first()
+    user = User.objects(login=record['login']).first()
     if not user:
         return jsonify({'error': 'data not found'})
     else:
