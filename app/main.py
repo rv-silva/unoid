@@ -1,28 +1,48 @@
-import pymongo, os
-from flask import Flask, request
+#!/usr/bin/env python
+# encoding: utf-8
+import json
+from flask import Flask, request, jsonify
+
+from model import User
 
 app = Flask(__name__)
 
-# Set connection to MongoDB, Database & Collection
-conn_str = os.getenv("DB_ADDRESS")
-cluster = pymongo.MongoClient(conn_str, serverSelectionTimeoutMS=5000)
-db = cluster["users"]
-collection = db["userdata"]
+@app.route('/', methods=['GET'])
+def query_records():
+    name = request.args.get('name')
+    user = User.objects(name=name).first()
+    if not user:
+        return jsonify({'error': 'data not found'})
+    else:
+        return jsonify(user.to_json())
 
-@app.route("/unoid/<string:uid>", methods=["GET"])
-def get_unoid(uid):
-    results = collection.find({"_id": uid})
-    return {
-        'id': uid,
-        'message': 'UnoID {} details'.format(results),
-        'method': request.method
-    }
+@app.route('/', methods=['PUT'])
+def create_record():
+    record = json.loads(request.data)
+    user = User(name=record['name'],
+                email=record['email'])
+    user.save()
+    return jsonify(user.to_json())
 
-@app.route("/unoid/", methods=["POST"])
-def new_unoid():
-    collection.insert_one(request.json)
-    return {
-        'message': 'UnoID created successfully',
-        'method': request.method,
-    'body': request.json
-    }
+@app.route('/', methods=['POST'])
+def update_record():
+    record = json.loads(request.data)
+    user = User.objects(name=record['name']).first()
+    if not user:
+        return jsonify({'error': 'data not found'})
+    else:
+        user.update(email=record['email'])
+    return jsonify(user.to_json())
+
+@app.route('/', methods=['DELETE'])
+def delete_record():
+    record = json.loads(request.data)
+    user = User.objects(name=record['name']).first()
+    if not user:
+        return jsonify({'error': 'data not found'})
+    else:
+        user.delete()
+    return jsonify(user.to_json())
+
+if __name__ == "__main__":
+    app.run(debug=True)
