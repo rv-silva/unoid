@@ -1,4 +1,3 @@
-from enum import unique
 import os
 from flask import Flask
 from flask_mongoengine import MongoEngine
@@ -7,7 +6,9 @@ app = Flask(__name__)
 
 app.config['MONGODB_SETTINGS'] = {
     'db': 'users',
-    'host': os.getenv("MONGO_URI")
+    'host': os.getenv("MONGO_URI"),
+    'tls': 'true',
+    'ssl_cert_reqs': 'CERT_NONE'
 }
 db = MongoEngine()
 db.init_app(app)
