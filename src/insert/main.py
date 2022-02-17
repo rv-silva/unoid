@@ -7,15 +7,6 @@ from model import User
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET'])
-def query_records():
-    login = request.args.get('login')
-    user = User.objects(login=login).first()
-    if not user:
-        return jsonify({'error': 'data not found'})
-    else:
-        return jsonify(user.to_json())
-
 @app.route('/', methods=['PUT'])
 def create_record():
     record = json.loads(request.data)
@@ -35,6 +26,7 @@ def update_record():
         user.update(name=record['name'],
                     email=record['email'],
                     add_to_set__comments=record['comments'])
+        user = User.objects(login=record['login']).first()
     return jsonify(user.to_json())
 
 @app.route('/', methods=['DELETE'])
